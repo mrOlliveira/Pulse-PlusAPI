@@ -4,7 +4,7 @@ import { cliente } from '../database/index.js';
 const router = express.Router();
 
 
-router.post('/clientes', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const novoCliente = await cliente.create({
             nome: req.body.nome, 
@@ -29,7 +29,7 @@ router.get('/clientes', async (req, res) => {
     }
 });
 
-router.get ('/clientes/:id', async (req, res) => {
+router.get ('/:id', async (req, res) => {
     try {
         const cliente = await cliente.findByPk(req.params.id);
         if (!cliente) {
