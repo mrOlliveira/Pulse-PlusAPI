@@ -1,15 +1,20 @@
 import express from 'express';
-import { endereco } from '../database/index.js';
+import { endereco, cliente } from '../database/index.js';
 
 const router = express.Router();
 
 
-router.post('/', async (req, res) => {
+
+router.post('/clientes/:clienteID/endereco', async (req, res) => {
     try {
-        const novoendereco = await endereco.create({
-            nome: req.body.nome,
-            cnpj: req.body.cnpj,
-            datainclusao: new Date()
+        const novoEndereco = await endereco.create({
+            id: req.body.id,
+            logradouro: req.body.logradouro,
+            numero: req.body.numero,
+            CEP: req.body.CEP,
+            municipio: req.body.municipio,
+            uf: req.body.uf,
+            clienteID: req.params.clienteID
         });
         res.status(201).json(novoCliente); 
     } catch (error) {
@@ -27,6 +32,20 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
+
+router.get ('/:id', async (req, res) => {
+    try {
+        const cliente = await cliente.findByPk(req.params.id);
+        if (!cliente) {
+            return res.status(404).json({ error: 'Cliente não encontrado' });
+        }
+        res.json(cliente);
+    }catch (error) {
+        console.log(`Erro ao buscar cliente: ${error}`);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
 
 router.put('/:id', async (req, res) => {
     try {

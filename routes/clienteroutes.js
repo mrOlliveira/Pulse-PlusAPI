@@ -4,10 +4,10 @@ import { cliente } from '../database/index.js';
 const router = express.Router();
 
 
-router.post('/', async (req, res) => {
+router.post('/clientes', async (req, res) => {
     try {
         const novoCliente = await cliente.create({
-            nome: req.body.nome,
+            nome: req.body.nome, 
             cnpj: req.body.cnpj,
             datainclusao: new Date()
         });
@@ -18,7 +18,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get('/', async (req, res) => {
+
+router.get('/clientes', async (req, res) => {
     try {
         const clientes = await cliente.findAll(); 
         res.json(clientes);
@@ -28,7 +29,20 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.get ('/clientes/:id', async (req, res) => {
+    try {
+        const cliente = await cliente.findByPk(req.params.id);
+        if (!cliente) {
+            return res.status(404).json({ error: 'Cliente não encontrado' });
+        }
+        res.json(cliente);
+    }catch (error) {
+        console.log(`Erro ao buscar cliente: ${error}`);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+router.put('/clientes/:id', async (req, res) => {
     try {
         const [updated] = await cliente.update(req.body, {
             where: { id: req.params.id }
@@ -46,7 +60,8 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+
+router.delete('/clientes/:id', async (req, res) => {
     try {
         const deleted = await cliente.destroy({
             where: { id: req.params.id }

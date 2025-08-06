@@ -1,5 +1,7 @@
 import express from 'express';
 import {connect} from './database';
+import clienteroutes from './routes/clienteroutes';
+import enderecoroutes from './routes/enderecoroutes';
 
 
 const app = express();
@@ -10,8 +12,8 @@ app.use(express.json());
 
 connect();
 
-app.use('/clientes', cliente);
-app.use('/enderecos', endereco);
+app.use('/', clienteroutes);
+app.use('/', enderecoroutes);
 
 app.get('/', (req, res) => {
     res.send.json('API de Clientes e Endereços');
