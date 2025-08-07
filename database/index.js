@@ -1,4 +1,4 @@
-import {Sequelize} from 'sequelize';
+import Sequelize from 'sequelize';
 import enderecoModel from './endereco.js';
 import clientesModel from './clientes.js';
 
@@ -15,7 +15,7 @@ import clientesModel from './clientes.js';
 
 const connect = async () =>  {
     try {
-        sequelize.authenticate();
+        await sequelize.authenticate();
         await sequelize.sync();
         console.log('Conexão com o banco de dados foi bem sucedida.');
     }

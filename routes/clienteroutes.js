@@ -4,7 +4,7 @@ import { cliente } from '../database/index.js';
 const router = express.Router();
 
 
-router.post('/', async (req, res) => {
+router.post('/cliente', async (req, res) => {
     try {
         const novoCliente = await cliente.create({
             nome: req.body.nome, 
@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
 });
 
 
-router.get('/clientes', async (req, res) => {
+router.get('/cliente', async (req, res) => {
     try {
         const clientes = await cliente.findAll(); 
         res.json(clientes);
@@ -29,7 +29,7 @@ router.get('/clientes', async (req, res) => {
     }
 });
 
-router.get ('/:id', async (req, res) => {
+router.get ('/cliente/:id', async (req, res) => {
     try {
         const cliente = await cliente.findByPk(req.params.id);
         if (!cliente) {
@@ -42,13 +42,13 @@ router.get ('/:id', async (req, res) => {
     }
 });
 
-router.put('/clientes/:id', async (req, res) => {
+router.put('/cliente/:id', async (req, res) => {
     try {
-        const [updated] = await cliente.update(req.body, {
+        const [update] = await cliente.update(req.body, {
             where: { id: req.params.id }
         });
         
-        if (updated) {
+        if (update) {
             const clienteAtualizado = await cliente.findByPk(req.params.id);
             res.json(clienteAtualizado);
         } else {
@@ -61,14 +61,14 @@ router.put('/clientes/:id', async (req, res) => {
 });
 
 
-router.delete('/clientes/:id', async (req, res) => {
+router.delete('/cliente/:id', async (req, res) => {
     try {
         const deleted = await cliente.destroy({
-            where: { id: req.params.id }
+            where: { id: req.params.id },
         });
         
         if (deleted) {
-            res.status(204).end(); 
+            res.status(204).end(''); 
         } else {
             res.status(404).json({ error: 'Cliente não encontrado' });
         }

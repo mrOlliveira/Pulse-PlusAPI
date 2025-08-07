@@ -1,13 +1,15 @@
 import express from 'express';
-import {connect} from './database';
-import clienteroutes from './routes/clienteroutes';
-import enderecoroutes from './routes/enderecoroutes';
-
+import {connect} from './database/index.js';
+import clienteroutes from './routes/clienteroutes.js';
+import enderecoroutes from './routes/enderecoroutes.js';
+import cors from 'cors';
 
 const app = express();
-
 const PORT = 3000;
 
+app.use(cors({
+    origin: 'http://127.0.0.1:3001',
+}));
 app.use(express.json());
 
 connect();

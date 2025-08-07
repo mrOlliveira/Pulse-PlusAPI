@@ -7,7 +7,7 @@ export default (sequelize) => {
             primaryKey: true,
             autoIncrement: true
         },
-        Nome: {type: DataTypes.STRING},
+        nome: {type: DataTypes.STRING},
         cnpj: {type: DataTypes.STRING},
         datainclusao: {type: DataTypes.DATE}
     })

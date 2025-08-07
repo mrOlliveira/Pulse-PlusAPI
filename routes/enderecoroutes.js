@@ -3,78 +3,80 @@ import { endereco, cliente } from '../database/index.js';
 
 const router = express.Router();
 
-
-
-router.post('/clientes/:clienteID/endereco', async (req, res) => {
+router.post('/cliente/:clienteID/endereco', async (req, res) => {
     try {
         const novoEndereco = await endereco.create({
-            id: req.body.id,
             logradouro: req.body.logradouro,
             numero: req.body.numero,
             CEP: req.body.CEP,
             municipio: req.body.municipio,
-            uf: req.body.uf,
+            UF: req.body.UF,
             clienteID: req.params.clienteID
         });
-        res.status(201).json(novoCliente); 
+        res.status(201).json(novoEndereco); 
     } catch (error) {
-        console.log(`Erro ao criar cliente: ${error}`);
-        res.status(400).json({ error: 'Falha ao criar cliente' }); 
+        console.log(`Erro ao criar endereco: ${error}`);
+        res.status(400).json({ error: 'Falha ao criar endereco' }); 
     }
 });
 
-router.get('/', async (req, res) => {
+router.get('/cliente/:clienteID/endereco', async (req, res) => {
     try {
-        const clientes = await cliente.findAll(); 
-        res.json(clientes);
-    } catch (error) {
-        console.log(`Erro ao buscar clientes: ${error}`);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-});
+        const enderecosCliente = await endereco.findAll({
+            where: { clienteID: req.params.clienteID }
+        });
 
-router.get ('/:id', async (req, res) => {
-    try {
-        const cliente = await cliente.findByPk(req.params.id);
-        if (!cliente) {
-            return res.status(404).json({ error: 'Cliente não encontrado' });
+        if (!enderecosCliente || enderecosCliente.length === 0) {
+            return res.status(404).json({ error: 'Nenhum endereço encontrado para este cliente' });
         }
-        res.json(cliente);
-    }catch (error) {
-        console.log(`Erro ao buscar cliente: ${error}`);
+
+        res.json(enderecosCliente);
+    } catch (error) {
+        console.log(`Erro ao buscar endereços do cliente: ${error}`);
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
 
-
-router.put('/:id', async (req, res) => {
+router.get ('/endereco', async (req, res) => {
     try {
-        const [updated] = await cliente.update(req.body, {
+        const todosendereco = await endereco.findAll();
+        if (!endereco) {
+            return res.status(404).json({ error: 'não há endereços cadastrados' });
+        }
+        res.json(todosendereco);
+    }catch (error) {
+        console.log(`Erro ao buscar endereço: ${error}`);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+router.put('/cliente/:clienteID/endereco/:id', async (req, res) => {
+    try {
+        const update = await endereco.update(req.body, {
             where: { id: req.params.id }
         });
-        
-        if (updated) {
+        if (update) {
             const clienteAtualizado = await cliente.findByPk(req.params.id);
             res.json(clienteAtualizado);
         } else {
-            res.status(404).json({ error: 'Cliente não encontrado' });
+            res.status(404).json({ error: 'endereço não encontrado' });
         }
     } catch (error) {
-        console.log(`Erro ao atualizar cliente: ${error}`);
+        console.log(`Erro ao atualizar endereço: ${error}`);
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/cliente/:clienteID/endereco/:id', async (req, res) => {
     try {
-        const deleted = await cliente.destroy({
+        const deleted = await endereco.destroy({
             where: { id: req.params.id }
         });
         
         if (deleted) {
             res.status(204).end(); 
         } else {
-            res.status(404).json({ error: 'Cliente não encontrado' });
+            res.status(404).json({ error: 'endereço não encontrado' });
         }
     } catch (error) {
         console.log(`Erro ao deletar cliente: ${error}`);
