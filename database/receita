@@ -1,0 +1,16 @@
+import { DataTypes } from 'sequelize';
+
+export default (sequelize) => {
+    const receita = sequelize.define('Endereco', {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        iniciotrat:{type: DataTypes.STRING},
+        terminotrat:{type: DataTypes.STRING},
+        ted:{type: DataTypes.STRING},
+        
+    })
+    return receita;
+};
