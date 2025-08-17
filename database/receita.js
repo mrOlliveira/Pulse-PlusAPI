@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
-    const receita = sequelize.define('Endereco', {
+    const receita = sequelize.define('Receita', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -10,7 +10,9 @@ export default (sequelize) => {
         iniciotrat:{type: DataTypes.STRING},
         terminotrat:{type: DataTypes.STRING},
         ted:{type: DataTypes.STRING},
-        
+        QTDE: {type: DataTypes.INTEGER},
+        'id-medicamento': {type: DataTypes.INTEGER},
+        'cpf-cliente': {type: DataTypes.STRING}
     })
     return receita;
 };

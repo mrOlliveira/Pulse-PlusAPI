@@ -6,7 +6,6 @@ import dispensersModel from './dispenser.js';
 import estoqueModel from './estoque.js';
 import medicamentosModel from './medicamento.js';
 import receitaModel from './receita.js';
-import agenda from './agenda.js';
 
     const sequelize = new Sequelize({
         dialect : 'sqlite',
@@ -21,20 +20,32 @@ import agenda from './agenda.js';
     const medicamento = medicamentosModel(sequelize);
     const receita = receitaModel(sequelize);
 
-    estoque.hasOne(medicamento, { foreignKey: 'id-medicamento'});
-    medicamento.belongsTo(estoque, {foreignKey: 'id-medicamento'});
+    condicao.hasMany(cliente, { foreignKey: 'id-condicao' });
+    cliente.belongsTo(condicao, { foreignKey: 'id-condicao' });
 
-    estoque.hasOne(dispenser, {foreignKey: 'id-dispenser'});
-    dispenser.belongsTo(estoque, {foreignKey: 'id-dispenser'});
+    cliente.hasMany(dispenser, { foreignKey: 'CPF-dono' });
+    dispenser.belongsTo(cliente, { foreignKey: 'CPF-dono' });
 
-    agenda.hasOne(medicamento, {foreignKey: 'id-medicamento'});
-    medicamento.belongsTo(agenda, {foreignKey: 'id-medicamento'});
+    cliente.hasMany(agenda, { foreignKey: 'id-cliente' });
+    agenda.belongsTo(cliente, { foreignKey: 'id-cliente' });
 
-    agenda.hasOne(dispenser, {foreignKey: 'id-dispenser'});
-    dispenser.belongsTo(agenda, {foreignKey: 'id-dispenser'});
+    cliente.hasMany(receita, { foreignKey: 'cpf-cliente' });
+    receita.belongsTo(cliente, { foreignKey: 'cpf-cliente' });
 
-    agenda.hasOne(cliente, {foreignKey: 'id-cliente'});
-    cliente.belongsTo(agenda, {foreignKey: 'id-cliente'});
+    dispenser.hasMany(estoque, { foreignKey: 'id-dispenser' });
+    estoque.belongsTo(dispenser, { foreignKey: 'id-dispenser' });
+
+    dispenser.hasMany(agenda, { foreignKey: 'id-dispenser' });
+    agenda.belongsTo(dispenser, { foreignKey: 'id-dispenser' });
+
+    medicamento.hasMany(estoque, { foreignKey: 'id-medicamento' });
+    estoque.belongsTo(medicamento, { foreignKey: 'id-medicamento' });
+
+    medicamento.hasMany(agenda, { foreignKey: 'id-medicamento' });
+    agenda.belongsTo(medicamento, { foreignKey: 'id-medicamento' });
+
+    medicamento.hasMany(receita, { foreignKey: 'id-medicamento' });
+    receita.belongsTo(medicamento, { foreignKey: 'id-medicamento' });
 
 const connect = async () =>  {
     try {
@@ -46,5 +57,4 @@ const connect = async () =>  {
         console.error('Não foi possível conectar ao banco de dados:', error);
     };
 };
-export {sequelize, cliente, endereco, connect };
-
+export {sequelize, cliente, agenda, condicao, dispenser, estoque, medicamento, receita, connect };

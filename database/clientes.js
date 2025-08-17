@@ -7,6 +7,9 @@ export default (sequelize) => {
             primaryKey: true,
         },
         nome: {type: DataTypes.STRING},
+        telefone: {type: DataTypes.STRING},
+        DTnascimento: {type: DataTypes.DATEONLY},
+        'id-condicao': {type: DataTypes.INTEGER}
     })
     return clientes;
 };

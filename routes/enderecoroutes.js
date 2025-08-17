@@ -1,5 +1,5 @@
 import express from 'express';
-import { endereco, cliente } from '../database/index.js';
+import { cliente } from '../database/index.js';
 
 const router = express.Router();
 
