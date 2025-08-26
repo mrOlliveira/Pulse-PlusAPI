@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+.splash-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;              /* ocupa a tela inteira */
+  background-color: #ffffff;  /* fundo branco */
+  font-family: 'Inter', sans-serif;
+}
+
+.splash-title {
+  font-size: 3rem;       /* tamanho grande */
+  font-weight: 700;      /* Bold */
+  color: #000000;        /* Preto */
+  margin: 0;
+}
+
+.highlight {
+  color: #22c55e;        /* Verde do "+" */
+}
+
+.splash-logo {
+  width: 150px;          /* tamanho do logo */
+  margin-top: 20px;
+}

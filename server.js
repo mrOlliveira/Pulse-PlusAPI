@@ -18,7 +18,7 @@ app.use('/', clienteroutes);
 app.use('/', enderecoroutes);
 
 app.get('/', (req, res) => {
-    res.send.json('API de Clientes e Endereços');
+    res.json('API de Clientes e Endereços');
 });
 
 app.listen(PORT, () => {
