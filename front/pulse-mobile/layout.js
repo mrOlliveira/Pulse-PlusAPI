@@ -3,7 +3,6 @@ import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import { SplashScreen } from 'expo-splash-screen';
 
-// Impede o splash nativo de fechar sozinho
 SplashScreen.preventAutoHideAsync();
 
 export default function Layout() {

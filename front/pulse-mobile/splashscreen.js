@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { View, Text, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { styles } from '../styles/splashStyles';
+import { styles } from './styles/splashStyles';
 
 export default function SplashScreen() {
   const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace('/login'); // Vai para login após 3 segundos
+      router.replace('/login'); 
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -20,7 +20,7 @@ export default function SplashScreen() {
         PULSE<Text style={styles.plus}>+</Text>
       </Text>
       <Image 
-        source={require('../assets/images/logo.png')} 
+        source={require('./assets/logopulse.png')} 
         style={styles.logo}
       />
     </View>
