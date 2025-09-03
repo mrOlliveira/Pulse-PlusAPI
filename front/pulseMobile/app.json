@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "pulse-mobile",
-    "slug": "pulse-mobile",
+    "name": "pulseMobile",
+    "slug": "pulseMobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -24,9 +24,6 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-font"
-    ]
+    }
   }
 }
