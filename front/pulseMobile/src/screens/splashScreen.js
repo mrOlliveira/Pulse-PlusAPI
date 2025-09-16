@@ -6,7 +6,6 @@ const windowHeight = Dimensions.get('window').height;
 
 export default function SplashScreen({ navigation }) {
   useEffect(() => {
-    // Timer para navegar para a tela de login após 3 segundos
     const timer = setTimeout(() => {
       navigation.replace('Login');
     }, 3000);
@@ -17,12 +16,18 @@ export default function SplashScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Text style={styles.pulseText}>PULSE</Text>
-        <Text style={styles.plusText}>+</Text>
-      <Image
-        source={{uri: './images/simbolosplash.png' }}
-        style={{ width: 100, height:100}}
-      />
+        <View style={styles.textRow}>
+          <Text style={styles.pulseText}>PULSE</Text>
+          <Image
+          source={require('../images/+.png')}
+          style={styles.plusText}
+          />
+        </View>
+        <Image
+          source={require('../images/Simbolosplash.png')}
+          style={styles.logoImage}
+        />
+      </View>
     </View>
   );
 }
@@ -32,35 +37,31 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000', // Fundo preto como na imagem
+    backgroundColor: '#FFFFFF',
   },
   logoContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column', // 🔥 Agora empilha em cima e embaixo
     alignItems: 'center',
-    marginBottom: 20,
+  },
+  textRow: {
+    flexDirection: 'row', // 🔥 Mantém o PULSE e + lado a lado
+    alignItems: 'center',
+    marginBottom: 15,
   },
   pulseText: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#fff', // Texto branco
+    color: '#000000',
   },
   plusText: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#ff0000', // Sinal de + em vermelho
-    marginLeft: 5,
+  width: 35,
+  height: 35,
+  marginLeft: 5,
+  resizeMode: 'contain', // 🔥 mantém proporção sem esticar
   },
-  timeText: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    fontSize: 16,
-    color: '#fff',
-  },
-  fgText: {
-    position: 'absolute',
-    bottom: 30,
-    fontSize: 16,
-    color: '#fff',
+  logoImage: {
+    width: 120,
+    height: 120,
+    resizeMode: 'contain',
   },
 });
