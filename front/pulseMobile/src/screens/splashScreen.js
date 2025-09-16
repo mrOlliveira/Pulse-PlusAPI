@@ -54,10 +54,17 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   plusText: {
+<<<<<<< HEAD
   width: 35,
   height: 35,
   marginLeft: 5,
   resizeMode: 'contain', // 🔥 mantém proporção sem esticar
+=======
+    width: 35,
+    height: 35,
+    marginLeft: 5,
+    resizeMode: 'contain', // 🔥 mantém proporção sem esticar
+>>>>>>> c7a0aea873061b53b6cfdb8f7e11741a28d79c2d
   },
   logoImage: {
     width: 120,
