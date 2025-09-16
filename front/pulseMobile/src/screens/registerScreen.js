@@ -51,10 +51,6 @@ export default function RegisterScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-<<<<<<< HEAD
-=======
-        {/* Checkbox fake */}
->>>>>>> c7a0aea873061b53b6cfdb8f7e11741a28d79c2d
         <View style={styles.checkboxContainer}>
           <TouchableOpacity style={styles.checkbox} />
           <Text style={styles.termsText}>
@@ -67,10 +63,6 @@ export default function RegisterScreen({ navigation }) {
           <Text style={styles.registerButtonText}>Cadastrar</Text>
         </TouchableOpacity>
 
-<<<<<<< HEAD
-=======
-        {/* Voltar para Login */}
->>>>>>> c7a0aea873061b53b6cfdb8f7e11741a28d79c2d
         <Text style={styles.backToLoginText}>
           Já tem uma conta?{' '}
           <Text
