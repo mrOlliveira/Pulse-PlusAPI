@@ -6,6 +6,8 @@ import dispensersModel from './dispenser.js';
 import estoqueModel from './estoque.js';
 import medicamentosModel from './medicamento.js';
 import receitaModel from './receita.js';
+import alarmeModel from './alarme.js';
+
 
     const sequelize = new Sequelize({
         dialect : 'sqlite',
@@ -19,6 +21,8 @@ import receitaModel from './receita.js';
     const estoque = estoqueModel(sequelize);
     const medicamento = medicamentosModel(sequelize);
     const receita = receitaModel(sequelize);
+    const alarme = alarmeModel(sequelize);
+
 
     condicao.hasMany(cliente, { foreignKey: 'id-condicao' });
     cliente.belongsTo(condicao, { foreignKey: 'id-condicao' });
@@ -47,7 +51,14 @@ import receitaModel from './receita.js';
     medicamento.hasMany(receita, { foreignKey: 'id-medicamento' });
     receita.belongsTo(medicamento, { foreignKey: 'id-medicamento' });
 
-const connect = async () =>  {
+    medicamento.hasMany(alarme, { foreignKey: 'id-medicamento' });
+    alarme.belongsTo(medicamento, { foreignKey: 'id-medicamento' });
+
+    cliente.hasMany(alarme, { foreignKey: 'cpf-cliente' });
+    alarme.belongsTo(cliente, { foreignKey: 'cpf-cliente' });
+
+
+    const connect = async () =>  {
     try {
         await sequelize.authenticate();
         await sequelize.sync();
@@ -56,5 +67,5 @@ const connect = async () =>  {
     catch (error) {
         console.error('Não foi possível conectar ao banco de dados:', error);
     };
-};
-export {sequelize, cliente, agenda, condicao, dispenser, estoque, medicamento, receita, connect };
+    };
+    export {sequelize, cliente, agenda, condicao, dispenser, estoque, medicamento, receita, alarme, connect };
