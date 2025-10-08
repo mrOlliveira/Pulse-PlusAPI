@@ -12,26 +12,32 @@ import {
 import HeaderLogo from '../components/HeaderLogo';
 import FooterNav from '../components/FooterNav';
 import { Ionicons } from '@expo/vector-icons';
+import { API_BASE_URL } from '../config';
 
 export default function HomeScreen({ navigation }) {
   const [alarms, setAlarms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Função para buscar alarmes do banco
   const fetchAlarms = async () => {
     try {
-      // TODO: Substituir pela sua URL real da API
-      const response = await fetch('http://localhost:3000/api/alarmes');
+      console.log('Buscando alarmes de:', `${API_BASE_URL}/api/alarmes`);
+      const response = await fetch(`${API_BASE_URL}/api/alarmes`);
+      
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log('Alarmes recebidos:', data);
       setAlarms(data);
     } catch (error) {
       console.error('Erro ao buscar alarmes:', error);
-      // Fallback para dados mock enquanto desenvolve
+      // Fallback para dados mock
       setAlarms([
-        { id: '1', nome: 'Vitamina C 1g', hora: '05:30', ativo: true },
-        { id: '2', nome: 'Vitamina D 1g', hora: '08:40', ativo: false },
-        { id: '3', nome: 'Vitamina E 1g', hora: '15:00', ativo: true },
+        { id: 1, nome: 'Vitamina C 1g', hora: '05:30', ativo: true },
+        { id: 2, nome: 'Vitamina D 1g', hora: '08:40', ativo: false },
+        { id: 3, nome: 'Vitamina E 1g', hora: '15:00', ativo: true },
       ]);
     } finally {
       setLoading(false);
@@ -39,13 +45,11 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  // Função para puxar para atualizar
   const onRefresh = () => {
     setRefreshing(true);
     fetchAlarms();
   };
 
-  // Função para deletar alarme
   const deleteAlarm = (alarmId) => {
     Alert.alert(
       'Confirmar exclusão',
@@ -57,15 +61,12 @@ export default function HomeScreen({ navigation }) {
           style: 'destructive',
           onPress: async () => {
             try {
-              // TODO: Substituir pela sua URL real da API
-              await fetch(`http://localhost:3000/api/alarmes/${alarmId}`, {
+              await fetch(`${API_BASE_URL}/api/alarmes/${alarmId}`, {
                 method: 'DELETE'
               });
-              // Remove o alarme da lista localmente (otimista)
               setAlarms(alarms.filter(alarm => alarm.id !== alarmId));
             } catch (error) {
               console.error('Erro ao excluir alarme:', error);
-              // Recarrega a lista em caso de erro
               fetchAlarms();
             }
           }
@@ -74,24 +75,20 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
-  // Função para alternar status do alarme
   const toggleAlarm = async (alarmId, currentStatus) => {
     try {
-      // TODO: Substituir pela sua URL real da API
-      await fetch(`http://localhost:3000/api/alarmes/${alarmId}`, {
+      await fetch(`${API_BASE_URL}/api/alarmes/${alarmId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ ativo: !currentStatus })
       });
-      // Atualiza localmente (otimista)
       setAlarms(alarms.map(alarm => 
         alarm.id === alarmId ? { ...alarm, ativo: !currentStatus } : alarm
       ));
     } catch (error) {
       console.error('Erro ao atualizar alarme:', error);
-      // Recarrega em caso de erro
       fetchAlarms();
     }
   };
@@ -130,7 +127,6 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 
-  // Tela quando não há alarmes
   if (!loading && alarms.length === 0) {
     return (
       <View style={styles.container}>
