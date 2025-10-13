@@ -1,9 +1,7 @@
-// [file name]: CreateAlarmScreen.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
@@ -16,13 +14,14 @@ import { API_BASE_URL } from '../config';
 
 export default function CreateAlarmScreen({ navigation }) {
   const [medicamento, setMedicamento] = useState('');
-  const [dosagem, setDosagem] = useState('');
-  const [diasSemana, setDiasSemana] = useState([]);
-  const [hora, setHora] = useState('07');
+  const [dosagem, setDosagem] = useState('500mg');
+  const [diasSemana, setDiasSemana] = useState([1, 2, 3, 4, 5]); // Seg-Sex por padrão
+  const [hora, setHora] = useState('08');
   const [minuto, setMinuto] = useState('00');
   const [periodo, setPeriodo] = useState('AM');
   const [medicamentos, setMedicamentos] = useState([]);
   const [showMedicamentos, setShowMedicamentos] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const dias = [
     { id: 0, label: 'D', nome: 'Domingo' },
@@ -40,29 +39,37 @@ export default function CreateAlarmScreen({ navigation }) {
 
   const fetchMedicamentos = async () => {
     try {
+      console.log('🔍 Buscando medicamentos...');
       const response = await fetch(`${API_BASE_URL}/api/medicamentos`);
+      
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log('✅ Medicamentos carregados:', data);
       setMedicamentos(data);
     } catch (error) {
-      console.error('Erro ao buscar medicamentos:', error);
+      console.error('❌ Erro ao buscar medicamentos:', error);
+      // Fallback
       setMedicamentos([
         { id: 1, nome: 'Paracetamol 500mg', formato: '500mg' },
         { id: 2, nome: 'Ibuprofeno 400mg', formato: '400mg' },
         { id: 3, nome: 'Vitamina C 1g', formato: '1g' },
-        { id: 4, nome: 'Omeprazol 20mg', formato: '20mg' }
       ]);
     }
   };
 
   const toggleDia = (diaId) => {
-    if (diasSemana.includes(diaId)) {
-      setDiasSemana(diasSemana.filter(id => id !== diaId));
-    } else {
-      setDiasSemana([...diasSemana, diaId]);
-    }
+    setDiasSemana(prev => 
+      prev.includes(diaId) 
+        ? prev.filter(id => id !== diaId)
+        : [...prev, diaId]
+    );
   };
 
   const selecionarMedicamento = (med) => {
+    console.log('💊 Medicamento selecionado:', med);
     setMedicamento(med.nome);
     setDosagem(med.formato || '500mg');
     setShowMedicamentos(false);
@@ -70,56 +77,78 @@ export default function CreateAlarmScreen({ navigation }) {
 
   const criarAlarme = async () => {
     if (!medicamento) {
-      Alert.alert('Erro', 'Selecione um medicamento');
+      Alert.alert('Atenção', 'Selecione um medicamento');
       return;
     }
 
     if (diasSemana.length === 0) {
-      Alert.alert('Erro', 'Selecione pelo menos um dia da semana');
+      Alert.alert('Atenção', 'Selecione pelo menos um dia da semana');
       return;
     }
 
-    let horaFormatada = parseInt(hora);
-    if (periodo === 'PM' && horaFormatada !== 12) {
-      horaFormatada += 12;
-    } else if (periodo === 'AM' && horaFormatada === 12) {
-      horaFormatada = 0;
-    }
-
-    const horarioCompleto = `${horaFormatada.toString().padStart(2, '0')}:${minuto.padStart(2, '0')}`;
-    const diasString = diasSemana.join(',');
+    setLoading(true);
 
     try {
+      // Converter hora para formato 24h
+      let hora24 = parseInt(hora);
+      if (periodo === 'PM' && hora24 !== 12) hora24 += 12;
+      if (periodo === 'AM' && hora24 === 12) hora24 = 0;
+
+      const horarioCompleto = `${hora24.toString().padStart(2, '0')}:${minuto}`;
+      const diasString = diasSemana.join(',');
+
+      const dadosAlarme = {
+        nome: medicamento,
+        hora: horarioCompleto,
+        dosagem: dosagem,
+        dias: diasString,
+        ativo: true,
+        'cpf-cliente': '123.456.789-00'
+      };
+
+      console.log('📤 Criando alarme com dados:', dadosAlarme);
+
       const response = await fetch(`${API_BASE_URL}/api/alarmes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          nome: medicamento,
-          hora: horarioCompleto,
-          dosagem: dosagem,
-          dias: diasString,
-          ativo: true,
-          'cpf-cliente': '123.456.789-00'
-        })
+        body: JSON.stringify(dadosAlarme)
       });
 
+      console.log('📥 Status da resposta:', response.status);
+
       if (response.ok) {
+        const novoAlarme = await response.json();
+        console.log('✅ Alarme criado:', novoAlarme);
         Alert.alert('Sucesso', 'Alarme criado com sucesso!', [
-          { text: 'OK', onPress: () => navigation.goBack() }
+          { 
+            text: 'OK', 
+            onPress: () => {
+              navigation.navigate('Home');
+            }
+          }
         ]);
       } else {
-        throw new Error('Erro ao criar alarme');
+        const erroTexto = await response.text();
+        console.error('❌ Erro do servidor:', erroTexto);
+        throw new Error(`Servidor retornou erro: ${response.status}`);
       }
+
     } catch (error) {
-      console.error('Erro ao criar alarme:', error);
-      Alert.alert('Erro', 'Não foi possível criar o alarme');
+      console.error('❌ Erro ao criar alarme:', error);
+      Alert.alert(
+        'Erro', 
+        'Não foi possível conectar ao servidor. Verifique:\n\n1. Se o servidor está rodando\n2. Se o IP está correto\n3. Sua conexão com a rede',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  const horas = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
-  const minutos = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
+  const horas = ['07', '08', '09', '10', '11', '12'];
+  const minutos = ['00', '15', '30', '45'];
 
   return (
     <View style={styles.container}>
@@ -128,11 +157,13 @@ export default function CreateAlarmScreen({ navigation }) {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Novo Alarme</Text>
 
+        {/* Medicamento */}
         <View style={styles.section}>
           <Text style={styles.label}>Nome do Remédio</Text>
           <TouchableOpacity 
             style={styles.input}
             onPress={() => setShowMedicamentos(true)}
+            disabled={loading}
           >
             <Text style={medicamento ? styles.inputText : styles.placeholderText}>
               {medicamento || 'Selecione um medicamento'}
@@ -141,15 +172,17 @@ export default function CreateAlarmScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
+        {/* Dosagem */}
         <View style={styles.section}>
           <Text style={styles.label}>Dosagem</Text>
           <View style={styles.input}>
-            <Text style={styles.inputText}>{dosagem || '500mg'}</Text>
+            <Text style={styles.inputText}>{dosagem}</Text>
           </View>
         </View>
 
         <View style={styles.divider} />
 
+        {/* Dias da Semana */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Dias da semana</Text>
           <View style={styles.diasContainer}>
@@ -161,6 +194,7 @@ export default function CreateAlarmScreen({ navigation }) {
                   diasSemana.includes(dia.id) && styles.diaButtonSelected
                 ]}
                 onPress={() => toggleDia(dia.id)}
+                disabled={loading}
               >
                 <Text style={[
                   styles.diaText,
@@ -173,6 +207,7 @@ export default function CreateAlarmScreen({ navigation }) {
           </View>
         </View>
 
+        {/* Horário */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Horário</Text>
           <View style={styles.horarioContainer}>
@@ -184,6 +219,7 @@ export default function CreateAlarmScreen({ navigation }) {
                     key={h}
                     style={[styles.timeOption, hora === h && styles.timeOptionSelected]}
                     onPress={() => setHora(h)}
+                    disabled={loading}
                   >
                     <Text style={[styles.timeText, hora === h && styles.timeTextSelected]}>
                       {h}
@@ -201,6 +237,7 @@ export default function CreateAlarmScreen({ navigation }) {
                     key={m}
                     style={[styles.timeOption, minuto === m && styles.timeOptionSelected]}
                     onPress={() => setMinuto(m)}
+                    disabled={loading}
                   >
                     <Text style={[styles.timeText, minuto === m && styles.timeTextSelected]}>
                       {m}
@@ -216,6 +253,7 @@ export default function CreateAlarmScreen({ navigation }) {
                 <TouchableOpacity
                   style={[styles.periodoButton, periodo === 'AM' && styles.periodoButtonSelected]}
                   onPress={() => setPeriodo('AM')}
+                  disabled={loading}
                 >
                   <Text style={[styles.periodoText, periodo === 'AM' && styles.periodoTextSelected]}>
                     AM
@@ -224,6 +262,7 @@ export default function CreateAlarmScreen({ navigation }) {
                 <TouchableOpacity
                   style={[styles.periodoButton, periodo === 'PM' && styles.periodoButtonSelected]}
                   onPress={() => setPeriodo('PM')}
+                  disabled={loading}
                 >
                   <Text style={[styles.periodoText, periodo === 'PM' && styles.periodoTextSelected]}>
                     PM
@@ -234,11 +273,32 @@ export default function CreateAlarmScreen({ navigation }) {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.confirmButton} onPress={criarAlarme}>
-          <Text style={styles.confirmButtonText}>Criar Alarme</Text>
+        {/* Botão Confirmar */}
+        <TouchableOpacity 
+          style={[styles.confirmButton, loading && styles.confirmButtonDisabled]} 
+          onPress={criarAlarme}
+          disabled={loading}
+        >
+          {loading ? (
+            <Text style={styles.confirmButtonText}>Criando...</Text>
+          ) : (
+            <Text style={styles.confirmButtonText}>Criar Alarme</Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Botão de teste */}
+        <TouchableOpacity 
+          style={styles.testButton}
+          onPress={() => {
+            console.log('🧪 Testando conexão...');
+            fetchMedicamentos();
+          }}
+        >
+          <Text style={styles.testButtonText}>Testar Conexão</Text>
         </TouchableOpacity>
       </ScrollView>
 
+      {/* Modal de Medicamentos */}
       <Modal visible={showMedicamentos} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -250,18 +310,22 @@ export default function CreateAlarmScreen({ navigation }) {
             </View>
             
             <ScrollView>
-              {medicamentos.map((med) => (
-                <TouchableOpacity
-                  key={med.id}
-                  style={styles.medicamentoItem}
-                  onPress={() => selecionarMedicamento(med)}
-                >
-                  <Text style={styles.medicamentoNome}>{med.nome}</Text>
-                  {med.formato && (
-                    <Text style={styles.medicamentoFormato}>{med.formato}</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
+              {medicamentos.length === 0 ? (
+                <Text style={styles.emptyText}>Nenhum medicamento encontrado</Text>
+              ) : (
+                medicamentos.map((med) => (
+                  <TouchableOpacity
+                    key={med.id}
+                    style={styles.medicamentoItem}
+                    onPress={() => selecionarMedicamento(med)}
+                  >
+                    <Text style={styles.medicamentoNome}>{med.nome}</Text>
+                    {med.formato && (
+                      <Text style={styles.medicamentoFormato}>{med.formato}</Text>
+                    )}
+                  </TouchableOpacity>
+                ))
+              )}
             </ScrollView>
           </View>
         </View>
@@ -270,7 +334,6 @@ export default function CreateAlarmScreen({ navigation }) {
   );
 }
 
-// Mantenha os mesmos styles do anterior...
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   content: { flex: 1, padding: 20 },
@@ -278,12 +341,29 @@ const styles = StyleSheet.create({
   section: { marginBottom: 25 },
   label: { fontSize: 14, fontWeight: '600', color: '#666', marginBottom: 8 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 15 },
-  input: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: '#ddd', borderRadius: 10, paddingHorizontal: 15, paddingVertical: 12, backgroundColor: '#f9f9f9' },
+  input: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    borderWidth: 1, 
+    borderColor: '#ddd', 
+    borderRadius: 10, 
+    paddingHorizontal: 15, 
+    paddingVertical: 12, 
+    backgroundColor: '#f9f9f9' 
+  },
   inputText: { fontSize: 16, color: '#333' },
   placeholderText: { fontSize: 16, color: '#999' },
   divider: { height: 1, backgroundColor: '#eee', marginVertical: 20 },
   diasContainer: { flexDirection: 'row', justifyContent: 'space-between' },
-  diaButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' },
+  diaButton: { 
+    width: 40, 
+    height: 40, 
+    borderRadius: 20, 
+    backgroundColor: '#f0f0f0', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
   diaButtonSelected: { backgroundColor: '#00C851' },
   diaText: { fontSize: 16, fontWeight: 'bold', color: '#666' },
   diaTextSelected: { color: '#fff' },
@@ -300,8 +380,26 @@ const styles = StyleSheet.create({
   periodoButtonSelected: { backgroundColor: '#00C851' },
   periodoText: { fontSize: 14, color: '#666', fontWeight: '600' },
   periodoTextSelected: { color: '#fff' },
-  confirmButton: { backgroundColor: '#00C851', paddingVertical: 16, borderRadius: 25, alignItems: 'center', marginTop: 20, marginBottom: 40 },
+  confirmButton: { 
+    backgroundColor: '#00C851', 
+    paddingVertical: 16, 
+    borderRadius: 25, 
+    alignItems: 'center', 
+    marginTop: 20, 
+    marginBottom: 10 
+  },
+  confirmButtonDisabled: {
+    backgroundColor: '#ccc'
+  },
   confirmButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  testButton: {
+    backgroundColor: '#666',
+    paddingVertical: 12,
+    borderRadius: 25,
+    alignItems: 'center',
+    marginBottom: 40
+  },
+  testButtonText: { color: '#fff', fontSize: 14 },
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
   modalContent: { backgroundColor: '#fff', borderRadius: 15, maxHeight: '70%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
@@ -309,4 +407,5 @@ const styles = StyleSheet.create({
   medicamentoItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   medicamentoNome: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 4 },
   medicamentoFormato: { fontSize: 14, color: '#666' },
+  emptyText: { textAlign: 'center', padding: 20, color: '#666' }
 });
