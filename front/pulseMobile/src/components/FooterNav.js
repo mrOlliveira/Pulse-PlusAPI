@@ -15,11 +15,6 @@ export default function FooterNav({ navigation, current }) {
         <Text style={[styles.label, current === 'Alarms' && styles.active]}>Alarmes</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate('Agenda')}>
-        <Ionicons name="calendar" size={22} color={current === 'Agenda' ? '#00A86B' : '#999'} />
-        <Text style={[styles.label, current === 'Agenda' && styles.active]}>Agenda</Text>
-      </TouchableOpacity>
-
       <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate('Profile')}>
         <Ionicons name="person" size={22} color={current === 'Profile' ? '#00A86B' : '#999'} />
         <Text style={[styles.label, current === 'Profile' && styles.active]}>Perfil</Text>

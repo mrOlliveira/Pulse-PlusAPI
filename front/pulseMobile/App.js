@@ -9,6 +9,8 @@ import LoginScreen from './src/screens/loginScreen';
 import RegisterScreen from './src/screens/registerScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import CreateAlarmScreen from './src/screens/CreateAlarmScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import EditProfileScreen from './src/screens/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +23,8 @@ export default function App() {
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="CreateAlarm" component={CreateAlarmScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
